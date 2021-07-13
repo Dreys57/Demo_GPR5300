@@ -1,0 +1,215 @@
+# Blender MTL File: 'Full_Church.blend'
+# Material Count: 19
+
+newmtl Cloth
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 0.200000C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\cloth 1\\normals.jpg
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\cloth 1\\seamless-1807374_1280.jpg
+
+newmtl Dark_concrete
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\road09L2w3 23.jpg
+
+newmtl Door
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+
+newmtl Flower
+Ns 364.462798
+Ka 0.100000 0.100000 0.100000
+Kd 0.800000 0.800000 0.800000
+Ks 0.154545 0.154545 0.154545
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\TexturesCom_Flowers0087_1_alphamasked_S.png
+map_d C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\TexturesCom_Flowers0087_1_alphamasked_S.png
+
+newmtl Inside_wall
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\Insidewall.jpg
+
+newmtl Leaves
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\TexturesCom_Leaves0202_1_masked_S.png
+map_d C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\TexturesCom_Leaves0202_1_masked_S.png
+
+newmtl Material.003
+Ns 429.619831
+Ka 0.086364 0.086364 0.086364
+Kd 0.154489 0.503812 0.175458
+Ks 0.140909 0.140909 0.140909
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl Outside_wall
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\outside wall\\Cobblestone20_COL_VAR1_6K.jpg
+map_Ks C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\outside wall\\Cobblestone20_GLOSS_6K.jpg
+map_Ns C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\outside wall\\Cobblestone20_REFL_6K.jpg
+
+newmtl basket
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump -bm 0.200000 C:\\Users\\Admin\\Downloads\\Texture\\basket\\FabricWicker001_NRM.jpg
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\basket\\FabricWicker001_ALPHAMASKED_VAR1_4K.png
+map_Ns C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\basket\\FabricWicker001_GLOSS.jpg
+map_d C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\basket\\FabricWicker001_ALPHAMASKED_VAR1_4K.png
+
+newmtl blue_purple
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.273055 0.446921 0.844388
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+
+newmtl blue_wall
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.273055 0.446921 0.844388
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+
+newmtl chair
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+
+newmtl cloth_cross
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump -bm 0.200000 C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\cloth 1\\normals.jpg
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\cross.jpg
+
+newmtl floor
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.113636 0.113636 0.113636
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\beige_tiles_3\\beige_tiles_3_normal.png
+map_Ks C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\beige_tiles_3\\beige_tiles_3_glossiness.png
+map_Ns C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\beige_tiles_3\\beige_tiles_3_height.png
+
+newmtl moss
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.040909 0.040909 0.040909
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\TexturesCom_DecalBottom0008_1_alphamasked_S.png
+map_d C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\TexturesCom_DecalBottom0008_1_alphamasked_S.png
+
+newmtl roof
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump -bm 0.200000 C:\\Users\\Admin\\Documents\\SAE\\Demo_GPR5300\\data\\textures\\Texture\\Roof\\nornaks.jpg
+
+newmtl white
+Ns 728.999998
+Ka 0.100000 0.100000 0.100000
+Kd 1.000000 1.000000 1.000000
+Ks 0.095455 0.095455 0.095455
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl windows
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.019645 0.019645 0.019645
+Ks 0.450000 0.450000 0.450000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl windows.001
+Ns 323.999994
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
