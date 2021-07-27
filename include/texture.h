@@ -1,99 +1,140 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 #include <fstream>
 #include <glad/glad.h>
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <assimp/material.h>
 
 namespace gl {
 
+	unsigned int LoadCubeMap(std::vector<std::string> faces)
+	{
+		unsigned int textureID;
+
+		glGenTextures(1, &textureID);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+		int width, height, nbChannels;
+
+		for(unsigned int i = 0; i < faces.size(); ++i)
+		{
+			unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nbChannels, 0);
+
+			if(data)
+			{
+				switch (nbChannels)
+				{
+				case 1:
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+					break;
+
+				case 3:
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+					break;
+					
+				case 4:
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+					break;
+				}
+
+				stbi_image_free(data);
+			}
+			else
+			{
+				std::cout << "Cubemap tex load fail at " << faces[i] << std::endl;
+				stbi_image_free(data);
+			}
+		}
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+		return textureID;
+	}
+	
+	unsigned int LoadTextureFromFile(const char* path, const std::string& directory, aiTextureType textureType)
+	{
+		std::string filename = directory + "/" + std::string(path);
+
+		unsigned int textureID;
+		glGenTextures(1, &textureID);
+
+		int width, height, nbChannels;
+
+		unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nbChannels, 0);
+
+		assert(data);
+		
+		GLenum format;
+		GLenum format2;
+
+		switch (nbChannels)
+		{
+		case 1:
+			format = GL_RED;
+			format2 = GL_RED;
+			break;
+
+		case 2:
+			format = GL_RG;
+			format2 = GL_RG;
+			break;
+
+		case 3:
+
+			if (textureType == aiTextureType_DIFFUSE)
+			{
+				format = GL_SRGB;
+			}
+			else
+			{
+				format = GL_RGB;
+			}
+
+			format2 = GL_RGB;
+			break;
+
+		case 4:
+
+			if (textureType == aiTextureType_DIFFUSE)
+			{
+				format = GL_SRGB8_ALPHA8;
+			}
+			else
+			{
+				format = GL_RGBA;
+			}
+
+			format2 = GL_RGBA;
+		
+
+			glBindTexture(GL_TEXTURE_2D, textureID);
+			glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format2, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			stbi_image_free(data);
+		}
+		
+
+		return textureID;
+	}
+	
 	class Texture {
 	public:
 		unsigned int id;
 
-		Texture(){}
+		Texture() = default;
 		
-		Texture(const std::string& file_name)
-		{
-			int width, height, nrChannels;
-			stbi_set_flip_vertically_on_load(true);
-			unsigned char* data = stbi_load(
-				file_name.c_str(),
-				&width,
-				&height,
-				&nrChannels,
-				0);
-			assert(data);
-			glGenTextures(1, &id);
-			IsError(__FILE__, __LINE__);
-			glBindTexture(GL_TEXTURE_2D, id);
-			IsError(__FILE__, __LINE__);
-			switch (nrChannels)
-			{
-			case 3:
-				glTexImage2D(
-					GL_TEXTURE_2D,
-					0,
-					GL_RGB,
-					width,
-					height,
-					0,
-					GL_RGB,
-					GL_UNSIGNED_BYTE,
-					data);
-				IsError(__FILE__, __LINE__);
-				break;
-			case 4:
-				glTexImage2D(
-					GL_TEXTURE_2D,
-					0,
-					GL_RGBA,
-					width,
-					height,
-					0,
-					GL_RGBA,
-					GL_UNSIGNED_BYTE,
-					data);
-				IsError(__FILE__, __LINE__);
-				break;
-			case 1:
-				glTexImage2D(
-					GL_TEXTURE_2D,
-					0,
-					GL_RED,
-					width,
-					height,
-					0,
-					GL_RED,
-					GL_UNSIGNED_BYTE,
-					data);
-				IsError(__FILE__, __LINE__);
-				break;
-			default:
-				throw std::runtime_error(
-					"Unknown number of colors: " + std::to_string(nrChannels));
-			}
-			stbi_image_free(data);
-			glTexParameteri(
-				GL_TEXTURE_2D,
-				GL_TEXTURE_WRAP_S,
-				GL_MIRRORED_REPEAT);
-			IsError(__FILE__, __LINE__);
-			glTexParameteri(
-				GL_TEXTURE_2D,
-				GL_TEXTURE_WRAP_T,
-				GL_MIRRORED_REPEAT);
-			IsError(__FILE__, __LINE__);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			IsError(__FILE__, __LINE__);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			IsError(__FILE__, __LINE__);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			IsError(__FILE__, __LINE__);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			IsError(__FILE__, __LINE__);
-		}
 		void Bind(unsigned int i = 0) const
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
@@ -116,6 +157,13 @@ namespace gl {
 					" at line: " + std::to_string(line));
 			}
 		}
+	};
+
+	struct TextureStruct
+	{
+		unsigned int id = 0;
+		std::string type;
+		std::string path;
 	};
 
 } // End namespace gl.

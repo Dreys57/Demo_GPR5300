@@ -140,6 +140,15 @@ namespace gl {
 				Zoom = 45.0f;
 		}
 
+		void SetState(glm::vec3 newPosition, glm::vec3 newFront)
+		{
+			position = newPosition;
+			front = newFront;
+
+			right = glm::normalize(glm::cross(front, world_up));
+			up = glm::normalize(glm::cross(right, front));
+		}
+
 	private:
 		// calculates the front vector from the Camera's (updated) Euler Angles
 		void updateCameraVectors()

@@ -3,8 +3,9 @@
 #include <string>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
-#include <tiny_obj_loader.h>
+#include "texture.h"
+#include "shader.h"
+
 
 namespace gl {
 
@@ -14,103 +15,142 @@ namespace gl {
         glm::vec3 position;
         glm::vec3 normal;
         glm::vec2 texture;
+        glm::vec3 tangeant;
     };
 
     class Mesh
     {
     public:        
-        const unsigned int material_index;
-        const unsigned int nb_vertices;
-
+        bool hasNormalTexture = false;
+    	
         Mesh(const std::vector<Vertex>& vertices,
-            const std::vector<std::uint32_t>& indices,
-            const unsigned int material_id) :   
-    		nb_vertices(static_cast<unsigned int>(indices.size())),
-            material_index(material_id)
+            const std::vector<unsigned int>& indices,
+            std::vector<TextureStruct>& textures) :
+            vertices_(vertices),
+    		indices_(indices),
+    		textures_(textures)
         {
+        	
             // VAO binding should be before VAO.
-            glGenVertexArrays(1, &VAO);
+            glGenVertexArrays(1, &VAO_);
             IsError(__FILE__, __LINE__);
-            glBindVertexArray(VAO);
+            glBindVertexArray(VAO_);
             IsError(__FILE__, __LINE__);
 
             // EBO.
-            glGenBuffers(1, &EBO);
+            glGenBuffers(1, &EBO_);
             IsError(__FILE__, __LINE__);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_);
             IsError(__FILE__, __LINE__);
             glBufferData(
                 GL_ELEMENT_ARRAY_BUFFER,
-                indices.size() * sizeof(float),
-                indices.data(),
+                indices_.size() * sizeof(unsigned int),
+                indices_.data(),
                 GL_STATIC_DRAW);
             IsError(__FILE__, __LINE__);
+           
 
             // VBO.
-            glGenBuffers(1, &VBO);
+            glGenBuffers(1, &VBO_);
             IsError(__FILE__, __LINE__);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO_);
             IsError(__FILE__, __LINE__);
             glBufferData(
                 GL_ARRAY_BUFFER,
-                vertices.size() * sizeof(Vertex),
-                vertices.data(),
+                vertices_.size() * sizeof(Vertex),
+                vertices_.data(),
                 GL_STATIC_DRAW);
             IsError(__FILE__, __LINE__);
 
-            GLintptr vertex_color_offset = 3 * sizeof(float);
-            GLintptr vertex_tex_offset = 6 * sizeof(float);
+            glEnableVertexAttribArray(0);       	
             glVertexAttribPointer(
                 0,
                 3,
                 GL_FLOAT,
                 GL_FALSE,
-                8 * sizeof(float),
-                0);
+                sizeof(Vertex),
+                (GLvoid*) nullptr);
             IsError(__FILE__, __LINE__);
+
+            glEnableVertexAttribArray(1);
             glVertexAttribPointer(
                 1,
                 3,
                 GL_FLOAT,
                 GL_FALSE,
-                8 * sizeof(float),
-                (GLvoid*)vertex_color_offset);
+                sizeof(Vertex),
+                (GLvoid*)offsetof(Vertex, normal));
             IsError(__FILE__, __LINE__);
+
+            glEnableVertexAttribArray(2);
             glVertexAttribPointer(
                 2,
                 2,
                 GL_FLOAT,
                 GL_FALSE,
-                8 * sizeof(float),
-                (GLvoid*)vertex_tex_offset);
-            IsError(__FILE__, __LINE__);
-            glEnableVertexAttribArray(0);
-            IsError(__FILE__, __LINE__);
-            glEnableVertexAttribArray(1);
-            IsError(__FILE__, __LINE__);
-            glEnableVertexAttribArray(2);
-            IsError(__FILE__, __LINE__);
+                sizeof(Vertex),
+                (GLvoid*)offsetof(Vertex, texture));
+        	
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(
+                3,
+                3,
+                GL_FLOAT,
+                GL_FALSE,
+                sizeof(Vertex),
+                (GLvoid*)offsetof(Vertex, tangeant));
 
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            IsError(__FILE__, __LINE__);
             glBindVertexArray(0);
-            IsError(__FILE__, __LINE__);
         }
-        void Bind() const
+        void BindTextures(std::unique_ptr<Shader>& shader) const
         {
-            glBindVertexArray(VAO);
-            IsError(__FILE__, __LINE__);
+            unsigned int diffuseNb = 1;
+            unsigned int specularNb = 1;
+            unsigned int normalNb = 1;
+            unsigned int emissionNb = 1;
+
+        	for(unsigned int i = 0; i < textures_.size(); ++i)
+        	{
+                glActiveTexture(GL_TEXTURE0 + i);
+                std::string nb;
+                std::string name = textures_[i].type;
+
+        		if(name == "texture_diffuse")
+        		{
+                    nb = std::to_string(diffuseNb++);
+        		}
+                else if(name == "texture_specular")
+                {
+                    nb = std::to_string(specularNb++);
+                }
+                else if(name == "texture_normal")
+                {
+                    nb = std::to_string(normalNb++);
+                }
+                else if(name == "texture_emission")
+                {
+                    nb = std::to_string(emissionNb++);
+                }
+
+                shader->SetInt((name + nb).c_str(), i);
+                glBindTexture(GL_TEXTURE_2D, textures_[i].id);
+        	}
+
+            glActiveTexture(GL_TEXTURE0);
         }
-        void UnBind() const
+        void Draw(std::unique_ptr<Shader>& shader)
         {
+            BindTextures(shader);
+
+            glBindVertexArray(VAO_);
+            glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
             glBindVertexArray(0);
-            IsError(__FILE__, __LINE__);
         }
 
     private:
-        unsigned int VAO = 0;
-        unsigned int VBO = 0;
-        unsigned int EBO = 0;
+        unsigned int VAO_ = 0;
+        unsigned int VBO_ = 0;
+        unsigned int EBO_ = 0;
     	
         void IsError(const std::string& file, int line) const
         {
@@ -123,6 +163,10 @@ namespace gl {
                     " at line: " + std::to_string(line));
             }
         }
+
+        std::vector<Vertex> vertices_;
+        std::vector<TextureStruct> textures_;
+        std::vector<unsigned int> indices_;
     };
 
 } // End namespace gl.

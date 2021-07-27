@@ -11,8 +11,9 @@ namespace gl {
 		
 		Texture color;
 		Texture specular;
+		Texture normalMap;
 		glm::vec3 specular_vec;
-		float specular_pow;
+		int specular_pow;
 	};
 
 }//End namepsace gl

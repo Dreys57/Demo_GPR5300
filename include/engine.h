@@ -15,7 +15,7 @@ namespace gl
     public:
         virtual ~Program() = default;
         virtual void Init() = 0;
-        virtual void Update(seconds dt) = 0;
+        virtual void Update(seconds dt, SDL_Window* window) = 0;
         virtual void Destroy() = 0;
         virtual void OnEvent(SDL_Event& event) = 0;
         virtual void DrawImGui() = 0;

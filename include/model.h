@@ -1,8 +1,9 @@
 #pragma once
 
 #include <vector>
-#define TINYOBJLOADER_IMPLEMENTATION // define this in only *one* .cc
-#include <tiny_obj_loader.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "material.h"
 #include "mesh.h"
@@ -12,80 +13,157 @@ namespace gl {
 
 	class Model {
 	public:
+        std::string directory;
+		std::string textureDirectory = "data/textures";
+		
 		Model(const std::string& filename)
 		{
-            tinyobj::ObjReader reader;
+            Assimp::Importer importer;
+            const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenNormals);
 
-            auto& attrib = reader.GetAttrib();
-            auto& shapes = reader.GetShapes();
-            auto& materials = reader.GetMaterials();
-
-			for(const auto& material : materials)
+			if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 			{
-                ParseMaterial(material);
+                std::cout << "ERROR ASSIMP" << importer.GetErrorString() << "\n";
+                return;
 			}
-			for(const auto& shape : shapes)
+
+            directory = filename.substr(0, filename.find_last_of('/'));
+
+			ProcessNode(scene->mRootNode, scene);
+		}
+
+		void Draw(std::unique_ptr<Shader>& shader)
+		{
+			for(unsigned int i = 0; i < meshes.size(); ++i)
 			{
-                ParseMesh(shape, attrib);
+				meshes[i].Draw(shader);
 			}
 		}
 		std::vector<Mesh> meshes;
 		std::vector<Material> materials;
 
 	private:
-		void ParseMaterial(const tinyobj::material_t& material)
+
+		void ProcessNode(aiNode* node, const aiScene* scene)
 		{
-			Material mat{};
+			for(unsigned int i = 0; i < node->mNumMeshes; ++i)
+			{
+				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+				meshes.push_back(ProcessMesh(mesh, scene));
+			}
 
-			std::string path = "../data/textures";
-
-			mat.color = Texture(path + material.diffuse_texname);
-			mat.specular = Texture(path + material.roughness_texname);
-			mat.specular_vec = glm::vec3(material.specular[0], material.specular[1], material.specular[2]);
-			mat.specular_pow = material.shininess;
-
-			materials.push_back(mat);
+			for(unsigned int i = 0; i < node->mNumChildren; ++i)
+			{
+				ProcessNode(node->mChildren[i], scene);
+			}
 		}
 
-		void ParseMesh(const tinyobj::shape_t& shape, const tinyobj::attrib_t& attrib)
+		Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		{
-			unsigned int material_id = 0;
+			std::vector<Vertex> vertices;
+			std::vector<unsigned int> indices;
+			std::vector<TextureStruct> textures;
 
-            std::vector<Vertex> vertices;
-            std::vector<std::uint32_t> indices;
-            int index_offset = 0;
-            for (std::size_t f = 0;
-                f < shape.mesh.num_face_vertices.size();
-                ++f)
-            {
-                int fv = shape.mesh.num_face_vertices[f];
-                if (fv != 3) throw std::runtime_error("Should be triangles?");
-                // Loop over vertices in the face.
-                for (size_t v = 0; v < fv; v++)
-                {
-                    Vertex vertex{};
-                    // access to vertex
-                    tinyobj::index_t idx =
-                        shape.mesh.indices[index_offset + v];
-                    vertex.position.x = attrib.vertices[3 * idx.vertex_index + 0];
-                    vertex.position.y = attrib.vertices[3 * idx.vertex_index + 1];
-                    vertex.position.z = attrib.vertices[3 * idx.vertex_index + 2];
-                    vertex.normal.x = attrib.normals[3 * idx.normal_index + 0];
-                    vertex.normal.y = attrib.normals[3 * idx.normal_index + 1];
-                    vertex.normal.z = attrib.normals[3 * idx.normal_index + 2];
-                    vertex.texture.x =
-                        attrib.texcoords[2 * idx.texcoord_index + 0];
-                    vertex.texture.y =
-                        attrib.texcoords[2 * idx.texcoord_index + 1];
-                    vertices.push_back(vertex);
-                    indices.push_back(static_cast<int>(indices.size()));
-                }
-                index_offset += fv;
-            }
-            material_id = shape.mesh.material_ids[0];
-            assert(index_offset == indices.size());
-            meshes.emplace_back(vertices, indices, material_id);
+			for(unsigned int i = 0; i < mesh->mNumVertices; ++i)
+			{
+				Vertex vertex;
+
+				glm::vec3 positions;
+				glm::vec3 normals;
+				glm::vec2 texCoord;
+				glm::vec3 tangeants;
+
+				positions.x = mesh->mVertices[i].x;
+				positions.y = mesh->mVertices[i].y;
+				positions.z = mesh->mVertices[i].z;
+				vertex.position = positions;
+
+				normals.x = mesh->mNormals[i].x;
+				normals.y = mesh->mNormals[i].y;
+				normals.z = mesh->mNormals[i].z;
+				vertex.normal = normals;
+
+				texCoord.x = mesh->mTextureCoords[0][i].x;
+				texCoord.y = mesh->mTextureCoords[0][i].y;
+				vertex.texture = texCoord;
+
+				tangeants.x = mesh->mTangents[i].x;
+				tangeants.y = mesh->mTangents[i].y;
+				tangeants.z = mesh->mTangents[i].z;
+				vertex.tangeant = tangeants;
+
+				vertices.push_back(vertex);
+			}
+
+			for(unsigned int i = 0; i < mesh->mNumFaces; ++i)
+			{
+				aiFace face = mesh->mFaces[i];
+
+				for(unsigned int j = 0; j < face.mNumIndices; ++j)
+				{
+					indices.push_back(face.mIndices[j]);
+				}
+			}
+
+			if(mesh->mMaterialIndex >= 0)
+			{
+				aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+				std::vector<TextureStruct> diffuseTextures = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+				textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
+
+				std::vector<TextureStruct> specularTextures = LoadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+				textures.insert(textures.end(), specularTextures.begin(), specularTextures.end());
+
+				std::vector<TextureStruct> normalmap = LoadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+				textures.insert(textures.end(), normalmap.begin(), normalmap.end());
+			}
+
+			return Mesh(vertices, indices, textures);
 		}
+
+		std::vector<TextureStruct> LoadMaterialTextures(aiMaterial* material, aiTextureType textureType, std::string typeName)
+		{
+			std::vector<TextureStruct> textures;
+			const std::size_t textureCount = material->GetTextureCount(textureType);
+
+			for(unsigned int i = 0; i < textureCount; ++i)
+			{
+				aiString string;
+
+				material->GetTexture(textureType, i, &string);
+
+				bool skip = false;
+				const std::size_t sizeOfTextureLoaded = texturesLoaded_.size();
+
+				for(unsigned int j = 0; j < texturesLoaded_.size(); ++j)
+				{
+					if(std::strcmp(texturesLoaded_[j].path.data(), string.C_Str()) == 0)
+					{
+						textures.push_back(texturesLoaded_[j]);
+						skip = true;
+						break;
+					}
+					assert(j < sizeOfTextureLoaded);
+				}
+
+				if(!skip)
+				{
+					TextureStruct texture;
+
+					texture.id = LoadTextureFromFile(string.C_Str(), textureDirectory, textureType);
+					texture.type = typeName;
+					texture.path = string.C_Str();
+					
+					textures.push_back(texture);
+					texturesLoaded_.push_back(texture);
+				}
+			}
+
+			return textures;
+		}
+
+		std::vector<TextureStruct> texturesLoaded_;
 	};
 
 }//End namepsace gl

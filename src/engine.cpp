@@ -117,7 +117,7 @@ void Engine::Run()
 			ImGui::NewFrame();
 			DrawImGui();
 			ImGui::Render();
-			program_.Update(dt);
+			program_.Update(dt, window_);
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 			SDL_GL_SwapWindow(window_);
 		}
